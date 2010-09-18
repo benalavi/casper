@@ -1,0 +1,20 @@
+Vagrant::Config.run do |config|
+  config.vm.box = "base"
+  config.vm.customize do |vm|
+    vm.name = "casper"
+    vm.memory_size = 512
+  end
+
+  config.vm.network("33.33.33.10")
+  config.vm.share_folder("v-root", "~/casper", "..", :nfs => true)
+  config.vm.provisioner = :chef_solo
+  config.vm.boot_mode   = :gui
+
+  config.chef.run_list = %w(
+    recipe[application::vagrant]
+    recipe[rvm]
+    recipe[testing]
+  )
+  
+  config.chef.log_level = :debug
+end
