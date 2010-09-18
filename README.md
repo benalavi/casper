@@ -10,13 +10,13 @@ We test Casper in a VM environment set up by Vagrant. If you have Vagrant
 (http://www.vagrantup.com/) set up and running, and you have the lucid32.box,
 you can just do:
 
-  $ cd test && vagrant up
+    $ cd test && vagrant up
 
 Once your VM is provisioned and running, ssh in (`vagrant ssh`) and then:
 
-  $ startx &
-  $ cd ~/casper/test
-  $ ruby casper_test.rb
+    $ startx &
+    $ cd ~/casper/test
+    $ ruby casper_test.rb
 
 If you don't have Vagrant set up, you can follow the getting started guide at
 http://www.vagrantup.com/, or you can install the necessary dependencies on
