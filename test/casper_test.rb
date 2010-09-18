@@ -1,7 +1,13 @@
 require File.dirname(__FILE__) + "/lib/test_helper"
 require "casper"
 
+# Yeah, we use Capybara & Selenium & jQuery & Firefox and X11 and all sorts
+# of other stuff when we could just as easily mock out the xdo lib and
+# simply make sure we're sending the right commands.
+# 
+# But this is way more fun =)
 class CasperTest < Test::Unit::TestCase
+  # Places a target div onto the document body with the given attributes
   def target!(id, x, y, width=50, height=50)
     evaluate_script <<-JS
 $('<div class="target" id="#{id}"></div>').
@@ -12,8 +18,10 @@ $('<div class="target" id="#{id}"></div>').
   end
   
   setup do
-    system %x{xdotool mousemove 0 0}
-    system %x{xdotool mouseup 1}
+    Casper::Mouse.move 0, 0
+    # Gets rid of the menu if it was left open (i.e. from leaving the mouse
+    # button down and moving over it).
+    Casper::Mouse.click
     resize_browser 1024, 768
     visit "/"
   end
@@ -66,10 +74,10 @@ $('<div class="target" id="#{id}"></div>').
     
     should "use the current mouse position when no :from option is provided" do
       Casper::Mouse.move 320, 350
-      assert_has_position? "#a", :left => 320, :top => 350
+      assert_has_position? "#a", :left => 300, :top => 220
 
       Casper::Mouse.drag :distance => [ 20, 20 ]
-      assert_has_position? "#a", :left => 340, :top => 370
+      assert_has_position? "#a", :left => 320, :top => 240
     end
     
     should "move from the current mouse position to the specified position when :to is provided without :from" do
@@ -98,7 +106,7 @@ $('<div class="target" id="#{id}"></div>').
       end
     end
 
-    should "raise argument error if you forget either from, or to" do
+    should "raise argument error if you did not provide either to or distance" do
       assert_raise ArgumentError do
         Casper::Mouse.drag :from => [ 1, 1 ]
       end

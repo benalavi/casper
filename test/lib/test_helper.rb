@@ -4,7 +4,7 @@ Dir[File.expand_path(File.dirname(__FILE__) + "/../..") + "/lib/"].each{ |vendor
 $:.unshift(File.dirname(__FILE__))
 
 require "rubygems"
-# require "ruby-debug"
+require "ruby-debug"
 require "sinatra"
 require "test/unit"
 require "contest"

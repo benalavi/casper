@@ -1,5 +1,3 @@
-require "ostruct"
-
 module Casper
   class Mouse
     class << self
@@ -41,10 +39,12 @@ module Casper
       # 
       # Available options are:
       # 
-      # * :from => [ x, y ] -- The absolute x/y coordinates to start from
-      # * :to => [ x, y ] -- The absolute x/y coordinates to end at
+      # * :from => [ x, y ] -- The absolute x/y coordinates to start from. If
+      #   omitted the drag will be started from the current mouse location.
+      # * :to => [ x, y ] -- The absolute x/y coordinates to end at. Can use
+      #   :distance instead for relative movements.
       # * :distance => [ x, y ] -- Can be used instead of :to to provide an
-      #   end point relative to the starting point
+      #   end point relative to the starting point.
       # * :increments => i -- The number of increments to include in the drag
       #   from the start to the end, defaults to 10. More increments cause a
       #   smoother, slower drag. Fewer increments cause a faster "jerkier"
@@ -56,11 +56,15 @@ module Casper
       # 
       # i.e.
       # 
+      #   drag :to => [ 300, 350 ]
       #   drag :from => [ 200, 300 ], :to => [ 400, 800 ]
       #   drag :from => [ 200, 300 ], :distance => [ 200, 500 ]
       #   drag :from => [ 200, 300 ], :distance => [ 220, 340 ], :increments => 20
       #   drag :from => [ 200, 300 ], :to => [ 300, 400 ] do
       #     sleep 0.5
+      #   end
+      #   drag :distance => [ 20, 0 ] do
+      #     drag :distance => [ 0, 30 ]
       #   end
       def drag(options={}, &block)        
         raise ArgumentError.new(":to or :distance is required to provide ending location") unless options.has_key?(:to) || options.has_key?(:distance)
