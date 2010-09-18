@@ -12,13 +12,11 @@ module Casper
       # Press the given mouse button down (default is 1: primary)
       def down(button=1)
         system %Q{xdotool mousedown #{button}}
-        sleep 0.2
       end
       
       # Release the given mouse button (default is 1: primary)
       def up(button=1)
         system %Q{xdotool mouseup #{button}}
-        sleep 0.2
       end
       
       # Click the given mouse button (default is 1: primary)

@@ -5,6 +5,7 @@
 gem_package "nokogiri"
 gem_package "ruby-debug"
 gem_package "rubyzip"
+gem_package "ffi"
 
 execute "install ruby-debug for 1.9.2" do
   user "root"
@@ -16,6 +17,12 @@ execute "install nokogiri for 1.9.2" do
   user "root"
   command %Q(rvm 1.9.2 gem install nokogiri --no-ri --no-rdoc)
   not_if "rvm 1.9.2 gem list | grep nokogiri"
+end
+
+execute "install ffi for 1.9.2" do
+  user "root"
+  command %Q(rvm 1.9.2 gem install ffi --no-ri --no-rdoc)
+  not_if "rvm 1.9.2 gem list | grep ffi"
 end
 
 package "xinit"
