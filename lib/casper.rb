@@ -1,3 +1,5 @@
+require "ostruct"
+
 module Casper
   class Mouse
     class << self
@@ -24,6 +26,12 @@ module Casper
       # Click the given mouse button (default is 1: primary)
       def click(button=1)
         system %Q{xdotool click #{button}}
+      end
+      
+      # Gives the current mouse position
+      def location
+        location = Hash[*`xdotool getmouselocation`.split(" ").collect{ |s| s.split(":") }.flatten]
+        [ location["x"].to_i, location["y"].to_i ]
       end
       
       # Perform a drag operation with the given options. A drag is performed
@@ -54,22 +62,18 @@ module Casper
       #   drag :from => [ 200, 300 ], :to => [ 300, 400 ] do
       #     sleep 0.5
       #   end
-      def drag(options={}, &block)
-        # TODO: if :from is missing just use current position, then drag will
-        # be stringable using blocks! :), need to handle the case where :to
-        # is supplied but not :from (because we need to calculate the shift)
-        # -- or just don't allow :to w/o :from
-        raise ArgumentError(":from is required to provide starting location") unless options.has_key?(:from)
-        raise ArgumentError(":to or :distance is required to provide ending location") unless options.has_key?(:to) || options.has_key?(:distance)
-        raise ArgumentError(":increments must be > 0") if options.has_key?(:increments) && options[:increments] <= 0
+      def drag(options={}, &block)        
+        raise ArgumentError.new(":to or :distance is required to provide ending location") unless options.has_key?(:to) || options.has_key?(:distance)
+        raise ArgumentError.new(":increments must be > 0") if options.has_key?(:increments) && options[:increments] <= 0
         
-        increments = options[:increments] || 10
-        distance   = options[:distance] || [options[:to][0] - options[:from][0], options[:to][1] - options[:from][1]]
+        from       ||= options[:from] || location
+        increments   = options[:increments] || 10
+        distance     = options[:distance] || [ options[:to][0] - from[0], options[:to][1] - from[1] ]
         
         shift_x = distance[0] / increments
         shift_y = distance[1] / increments
 
-        move options[:from][0], options[:from][1]
+        move from[0], from[1]
         down
         increments.times{ |i| move(shift_x, shift_y, true) }
         yield if block_given?
