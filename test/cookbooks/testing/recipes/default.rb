@@ -4,6 +4,7 @@
 #
 gem_package "nokogiri"
 gem_package "ruby-debug"
+gem_package "rubyzip"
 
 execute "install ruby-debug for 1.9.2" do
   user "root"
@@ -19,6 +20,7 @@ end
 
 package "xinit"
 package "x11-xserver-utils"
+package "firefox"
 
 # TODO: install from source for --sync option on mouseevents if needed,
 # requires xorg-dev which is heavy
