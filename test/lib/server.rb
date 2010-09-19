@@ -7,7 +7,7 @@ class Server < Sinatra::Base
 %head
   %script{ :src => "jquery.js" }
   %script{ :src => "jquery-ui.js" }
-  %script{ :src => "rxin_test.js" }
+  %script{ :src => "test.js" }
 %body
   %style{ :type => "text/css" }
     :sass
