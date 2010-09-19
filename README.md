@@ -1,7 +1,31 @@
 Casper
 ======
 
-A DSL for automated mouse and keyboard input in X11.
+A DSL for automated mouse <del>and keyboard</del> input in X11.
+
+Usage
+-----
+
+Right now Casper only does mouse input, it looks something like this:
+
+    Casper::Mouse.move 200, 300 # puts the cursor at x: 200px, y: 300px
+    Casper::Mouse.down          # presses the primary mouse button
+    Casper::Mouse.up            # releases the primary mouse button
+    Casper::Mouse.click         # clicks with the primary mouse button
+    Casper::Mouse.location      # => [ 200, 300 ]
+
+Which is all well and good, but the more useful stuff looks like:
+
+    Casper::Mouse.drag :from => [ 200, 300 ], :distance => [ 30, 60 ], :increments => 10 do
+      Casper::Mouse.drag :distance => [ 80, 100 ] do
+        sleep 0.5
+      end
+    end
+    
+We've found it particularly useful in conjunction with Selenium-based
+Javascript testing. We use it reliably test complex movements (such as a
+velocity-aware drag, or drag and drop between multiple containers with
+timeouts, etc...)
 
 Requirements
 ------------
