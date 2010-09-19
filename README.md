@@ -3,6 +3,20 @@ Casper
 
 A DSL for automated mouse and keyboard input in X11.
 
+Requirements
+------------
+
+Requires `libxdo` (comes with `xdotool`). Details and installation
+instructions can be found at http://www.semicomplete.com/projects/xdotool/.
+
+Quick build instructions for Ubuntu (tested on 10.04):
+
+    $ sudo apt-get install xorg-dev
+    $ wget http://semicomplete.googlecode.com/files/xdotool-2.20100818.3004.tar.gz
+    $ tar xzvf xdotool-2.20100818.3004.tar.gz
+    $ cd xdotool-2.20100818.3004
+    $ sudo make all install
+
 Testing
 -------
 
