@@ -1,5 +1,4 @@
-require File.dirname(__FILE__) + "/lib/test_helper"
-require "casper"
+require File.dirname(__FILE__) + "/test_helper"
 
 # Yeah, we use Capybara & Selenium & jQuery & Firefox and X11 and all sorts
 # of other stuff when we could just as easily mock out the xdo lib and
