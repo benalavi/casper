@@ -14,6 +14,7 @@ Vagrant::Config.run do |config|
     recipe[application::vagrant]
     recipe[rvm]
     recipe[testing]
+    recipe[xdotool]
   )
   
   config.chef.log_level = :debug

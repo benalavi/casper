@@ -28,7 +28,7 @@ bash "install ruby 1.9.2" do
     rvm package install readline
     rvm install ruby-1.9.2 -C --with-readline-dir=$HOME/.rvm/usr
   BASH
-  not_if { ::FileTest.exists?("/usr/local/rvm/rubies/ruby-1.9.2") } 
+  not_if { ::FileTest.exists?("/usr/local/rvm/rubies/ruby-1.9.2") }
 end
 
 bash "source rvm in bashrc" do
