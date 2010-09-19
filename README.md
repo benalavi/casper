@@ -23,7 +23,7 @@ Which is all well and good, but the more useful stuff looks like:
     end
     
 We've found it particularly useful in conjunction with Selenium-based
-Javascript testing. We use it reliably test complex movements (such as a
+Javascript testing. We use it to reliably test complex movements (such as a
 velocity-aware drag, or drag and drop between multiple containers with
 timeouts, etc...)
 
