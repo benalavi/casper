@@ -2,27 +2,21 @@
 # Cookbook Name:: testing
 # Recipe:: default
 #
-gem_package "nokogiri"
-gem_package "ruby-debug"
-gem_package "rubyzip"
-gem_package "ffi"
+%w( contest stories capybara sinatra haml nokogiri rubyzip ffi ).each do |dep|
+  gem_package dep
 
+  execute "install #{dep} for 1.9.2" do
+    user "root"
+    command %Q(rvm 1.9.2 gem install #{dep} --no-ri --no-rdoc)
+    not_if "rvm 1.9.2 gem list | grep #{dep}"
+  end
+end
+
+gem_package "ruby-debug"
 execute "install ruby-debug for 1.9.2" do
   user "root"
   command %Q(rvm 1.9.2 gem install ruby-debug19 --no-ri --no-rdoc)
   not_if "rvm 1.9.2 gem list | grep ruby-debug"
-end
-
-execute "install nokogiri for 1.9.2" do
-  user "root"
-  command %Q(rvm 1.9.2 gem install nokogiri --no-ri --no-rdoc)
-  not_if "rvm 1.9.2 gem list | grep nokogiri"
-end
-
-execute "install ffi for 1.9.2" do
-  user "root"
-  command %Q(rvm 1.9.2 gem install ffi --no-ri --no-rdoc)
-  not_if "rvm 1.9.2 gem list | grep ffi"
 end
 
 package "xinit"

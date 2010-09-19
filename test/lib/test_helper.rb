@@ -1,5 +1,4 @@
-Dir[File.expand_path(File.dirname(__FILE__) + "/vendor") + "/**/lib/"].each{ |vendor| $:.unshift(vendor) }
-Dir[File.expand_path(File.dirname(__FILE__) + "/../..") + "/lib/"].each{ |vendor| $:.unshift(vendor) }
+Dir[File.expand_path(File.dirname(__FILE__) + "/../..") + "/lib/"].each{ |lib| $:.unshift(lib) }
 
 $:.unshift(File.dirname(__FILE__))
 
