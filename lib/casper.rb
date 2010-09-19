@@ -1,3 +1,5 @@
+require "libxdo"
+
 module Casper
   class Mouse
     class << self
@@ -6,28 +8,31 @@ module Casper
       # If relative = true the x/y coordinates used are relative from the
       # current position, otherwise they are considered to be absolute.
       def move(x, y, relative=false)
-        relative ? system(%Q{xdotool mousemove_relative -- #{x} #{y}}) : system(%Q{xdotool mousemove -- #{x} #{y}})
+        relative ? relative(x, y) : absolute(x, y)
       end
-      
+            
       # Press the given mouse button down (default is 1: primary)
       def down(button=1)
-        system %Q{xdotool mousedown #{button}}
+        Libxdo.xdo_mousedown xdo, Libxdo::CurrentWindow, button
       end
       
       # Release the given mouse button (default is 1: primary)
       def up(button=1)
-        system %Q{xdotool mouseup #{button}}
+        Libxdo.xdo_mouseup xdo, Libxdo::CurrentWindow, button
       end
       
       # Click the given mouse button (default is 1: primary)
       def click(button=1)
-        system %Q{xdotool click #{button}}
+        Libxdo.xdo_click xdo, Libxdo::CurrentWindow, button
       end
       
       # Gives the current mouse position
       def location
-        location = Hash[*`xdotool getmouselocation`.split(" ").collect{ |s| s.split(":") }.flatten]
-        [ location["x"].to_i, location["y"].to_i ]
+        x = FFI::MemoryPointer.new :pointer
+        y = FFI::MemoryPointer.new :pointer
+        s = FFI::MemoryPointer.new :pointer
+        Libxdo.xdo_mouselocation xdo, x, y, s
+        [ x.read_int, y.read_int ]
       end
       
       # Perform a drag operation with the given options. A drag is performed
@@ -80,6 +85,30 @@ module Casper
         increments.times{ |i| move(shift_x, shift_y, true) }
         yield if block_given?
         up
+      end
+      
+      private
+      
+      # Returns a new xdo instance
+      def xdo
+        Libxdo.xdo_new(nil)
+      end      
+      
+      # Performs an absolute mouse move
+      def absolute(x, y)
+        xdor = xdo
+        
+        Libxdo.xdo_mousemove(xdor, x, y, 0)
+        Libxdo.xdo_mouse_wait_for_move_to(xdor, x, y)
+      end
+      
+      # Performs a relative mouse move
+      def relative(x, y)
+        xdor = xdo
+        loc  = location
+        
+        Libxdo.xdo_mousemove_relative(xdor, x, y)
+        Libxdo.xdo_mouse_wait_for_move_to(xdor, loc[0] + x, loc[1] + y)
       end
     end
   end

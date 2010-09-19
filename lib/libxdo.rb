@@ -1,15 +1,18 @@
 require "ffi"
 
 module Casper
-  module Native
+  module Libxdo
     extend FFI::Library
+
+    CurrentWindow = 0
+    
     ffi_lib "xdo"
 
     # xdo_t * xdo_new (char *display)
-    attach_function "xdo_new", [:string], :pointer
+    attach_function "xdo_new", [ :string ], :pointer
 
     # xdo_t * xdo_new_with_opened_display (Display *xdpy, const char *display, int close_display_when_freed)
-    attach_function "xdo_new_with_opened_display" [:pointer, :string, :int], :pointer
+    attach_function "xdo_new_with_opened_display", [:pointer, :string, :int], :pointer
 
     # const char * xdo_version (void)
     attach_function "xdo_version", [], :string
@@ -18,25 +21,22 @@ module Casper
     attach_function "xdo_free", [:pointer], :void
 
     # int xdo_mousemove (const xdo_t *xdo, int x, int y, int screen)
-    attach_function "xdo_mousemove" [:pointer, :int, :int, :int], :int
+    attach_function "xdo_mousemove", [:pointer, :int, :int, :int], :int
 
     # int xdo_mousemove_relative_to_window (const xdo_t *xdo, Window window, int x, int y)
     # XXX: Window is not a pointer - find the typedef
-    attach_function "xdo_mousemove_relative_to_window" [:pointer, :pointer, :int, :int], :int
+    attach_function "xdo_mousemove_relative_to_window", [:pointer, :pointer, :int, :int], :int
     
     # int xdo_mousemove_relative (const xdo_t *xdo, int x, int y)
-    attach_function "xdo_mousemove_relative" [:pointer, :int, :int], :int
+    attach_function "xdo_mousemove_relative", [:pointer, :int, :int], :int
 
     # int xdo_mousedown (const xdo_t *xdo, Window window, int button)
-    # XXX: Window != pointer
-    attach_function "xdo_mousedown", [:pointer, :pointer, int], :int
+    attach_function "xdo_mousedown", [:pointer, :int, :int], :int
 
     # int xdo_mouseup (const xdo_t *xdo, Window window, int button)
-    # XXX: Window != pointer
-    attach_function "xdo_mouseup", [:pointer, :pointer, int], :int
+    attach_function "xdo_mouseup", [:pointer, :int, :int], :int
 
     # int xdo_mouselocation (const xdo_t *xdo, int *x, int *y, int *screen_num)
-    # XXX: returning values like this is fun.  Need a memorypointer object I suppose?
     attach_function "xdo_mouselocation", [:pointer, :pointer, :pointer, :pointer], :int
 
     # int xdo_mouse_wait_for_move_from (const xdo_t *xdo, int origin_x, int origin_y)
@@ -46,13 +46,11 @@ module Casper
     attach_function "xdo_mouse_wait_for_move_to", [:pointer, :int, :int], :int
 
     # int xdo_click (const xdo_t *xdo, Window window, int button)
-    # XXX: Window != pointer
-    attach_function "xdo_click", [:pointer, :pointer, :int], :int
+    attach_function "xdo_click", [:pointer, :int, :int], :int
 
     # int xdo_type (const xdo_t *xdo, Window window, char *string, useconds_t delay)
-    # XXX: Window != pointer
     # XXX: Map useconds_t
-    attach_function "xdo_type", [:pointer, :pointer, :string, :int], :int
+    attach_function "xdo_type", [:pointer, :int, :string, :int], :int
 
     # int xdo_keysequence (const xdo_t *xdo, Window window, const char *keysequence, useconds_t delay)
     # XXX: Window != pointer
@@ -102,7 +100,7 @@ module Casper
 
     # int xdo_window_focus (const xdo_t *xdo, Window wid)
     # XXX: Window != pointer
-    attach_function "xdo_window_focus", [:pointer, :pointer] :int
+    attach_function "xdo_window_focus", [:pointer, :pointer], :int
 
     # int xdo_window_raise (const xdo_t *xdo, Window wid)
     # XXX: Window != pointer
@@ -142,7 +140,7 @@ module Casper
     # int xdo_get_window_location (const xdo_t *xdo, Window wid, int *x_ret, int *y_ret, Screen **screen_ret)
     # XXX: Window != pointer
     # XXX: What"s a screen double pointer
-    attach_function "xdo_get_window_location", [:pointer, :pointer, :pointer, :pointer, :pointer] (const xdo_t *xdo, Window wid, int *x_ret, int *y_ret, Screen **screen_ret), :int
+    attach_function "xdo_get_window_location", [:pointer, :pointer, :pointer, :pointer, :pointer], :int
 
     # int xdo_get_window_size (const xdo_t *xdo, Window wid, unsigned int *width_ret, unsigned int *height_ret)
     # XXX: Window != pointer
@@ -190,7 +188,7 @@ module Casper
 
     # XXX: char** is an array of strings?
     # const char ** xdo_symbol_map (void)
-    attach_function "xdo_symbol_map", [], [:string]
+    attach_function "xdo_symbol_map", [], :string
 
     # xdo_active_mods_t * xdo_get_active_modifiers (const xdo_t *xdo)
     attach_function "xdo_get_active_modifiers", [:pointer], :pointer
@@ -200,7 +198,7 @@ module Casper
 
     # int xdo_set_active_modifiers (const xdo_t *xdo, Window window, const xdo_active_mods_t *active_mods)
     # XXX: Window != pointer
-    attach_function "xdo_set_active_modifiers" (const xdo_t *xdo, Window window, const xdo_active_mods_t *active_mods), :int
+    attach_function "xdo_set_active_modifiers", [], :int
 
     # void xdo_free_active_modifiers (xdo_active_mods_t *active_mods)
     attach_function "xdo_free_active_modifiers", [:pointer], :void
@@ -226,33 +224,33 @@ module Casper
     end
 
     # XXX: Is the native documentation off by a field?  Feels like it.
-    class Charcodemap < FFI::Struct
-      # XXX: keycode isn"t a type
-      layout :code          ,:KeyCode, # the letter for this key, like "a"
-             :symbol        ,:KeySym,  # the keycode that this key is on
-             :index         ,:int,     # the symbol representing this key
-             :modmask       ,:int,     # the index in the keysym-per-keycode list that is this key
-             :needs_binding ,:int      # the modifiers activated by this key
-    end
+    # class Charcodemap < FFI::Struct
+    #   # XXX: keycode isn"t a type
+    #   layout :code          ,:KeyCode, # the letter for this key, like "a"
+    #          :symbol        ,:KeySym,  # the keycode that this key is on
+    #          :index         ,:int,     # the symbol representing this key
+    #          :modmask       ,:int,     # the index in the keysym-per-keycode list that is this key
+    #          :needs_binding ,:int      # the modifiers activated by this key
+    # end
 
     class XdoActiveMods < FFI::Struct
-      layout :keymods, :pointer  # charcodemap_t * keymods
-             :nkeymods, :int     # int nkeymods
-             :input_state, :uint # unsigned int input_state
+      layout :keymods, :pointer,  # charcodemap_t * keymods
+             :nkeymods, :int,     # int nkeymods
+             :input_state, :uint  # unsigned int input_state
     end
 
-    class XdoSearch < FFI::Struct
-      layout :title        ,:string,      # char * title
-             :winclass     ,:string,      # char * winclass # pattern to test against a window title
-             :winclassname ,:string,      # char * winclassname # pattern to test against a window class
-             :winname      ,:string,      # char *	winname # pattern to test against a window class
-             :pid          ,:int,         # int pid # window pid (From window atom _NET_WM_PID)
-             :max_depth    ,:long,        # long max_depth # depth of search.
-             :only_visible ,:int,         # only_visible   boolean; set true to search only visible windows
-             :screen       ,:int,         # screen
-             # XXX: Map this enum. Not sure how that works.
-             :xdo_search   ,:search_enum, # what screen to search, if any.
-             :searchmask   ,:uint         # unsigned int searchmask # bitmask of things you are searching for, such as SEARCH_NAME                                               , etc.
-    end
+    # class XdoSearch < FFI::Struct
+    #   layout :title        ,:string,      # char * title
+    #          :winclass     ,:string,      # char * winclass # pattern to test against a window title
+    #          :winclassname ,:string,      # char * winclassname # pattern to test against a window class
+    #          :winname      ,:string,      # char *  winname # pattern to test against a window class
+    #          :pid          ,:int,         # int pid # window pid (From window atom _NET_WM_PID)
+    #          :max_depth    ,:long,        # long max_depth # depth of search.
+    #          :only_visible ,:int,         # only_visible   boolean; set true to search only visible windows
+    #          :screen       ,:int,         # screen
+    #          # XXX: Map this enum. Not sure how that works.
+    #          :xdo_search   ,:search_enum, # what screen to search, if any.
+    #          :searchmask   ,:uint         # unsigned int searchmask # bitmask of things you are searching for, such as SEARCH_NAME                                               , etc.
+    # end
   end
 end

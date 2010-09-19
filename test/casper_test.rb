@@ -27,8 +27,11 @@ $('<div class="target" id="#{id}"></div>').
   end
   
   describe "mouse actions" do
-    should "position the mouse at 320, 240" do
+    setup do
       target! "a", 300, 220
+    end
+    
+    should "position the mouse at 320, 240" do
       assert !has_class?("#a", "mouseover")
     
       Casper::Mouse.move(320, 350)
@@ -36,7 +39,6 @@ $('<div class="target" id="#{id}"></div>').
     end
   
     should "press the primary mouse button down on the element" do
-      target! "a", 300, 220
       assert !has_class?("#a", "mousedown")
 
       Casper::Mouse.move(320, 350)
@@ -45,7 +47,6 @@ $('<div class="target" id="#{id}"></div>').
     end
 
     should "release the primary mouse button on the element" do
-      target! "a", 300, 220
       assert !has_class?("#a", "mousedown")
 
       Casper::Mouse.move(320, 350)
