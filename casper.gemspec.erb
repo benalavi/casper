@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "casper"
-  s.version     = "0.0.1"
+  s.version     = "0.0.1.1"
   s.summary     = %{A DSL for automated mouse and keyboard input in X11.}
   s.description = %Q{}
   s.authors     = ["Ben Alavi", "Chris Schneider"]
@@ -9,6 +9,8 @@ Gem::Specification.new do |s|
   s.files       = <%= Dir["lib/**/*.rb", "README*", "Rakefile", "test/**/*"].inspect %>
 
   s.rubyforge_project = "casper"
+  
+  s.add_dependency "ffi"
   
   s.add_development_dependency "contest"
   s.add_development_dependency "stories"
