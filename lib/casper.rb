@@ -2,7 +2,25 @@ require "libxdo"
 
 module Casper
   class Mouse
+    @@delay = 0
+    
     class << self
+      # Sets a time (in seconds, pass floats for fractions of a second) to
+      # delay after every operation. Useful for situations where the commands
+      # are going to a window and want to give the window a little time to
+      # react before sending more commands (i.e. letting the browser fire
+      # events).
+      # 
+      # Defaults to 0 (no delay).
+      def delay=(delay)
+        @@delay = delay
+      end
+      
+      # Returns the current delay time.
+      def delay
+        @@delay
+      end
+      
       # Move the mouse directly to the specified x/y coordinates.
       # 
       # If relative = true the x/y coordinates used are relative from the
@@ -59,16 +77,26 @@ module Casper
       # 
       # i.e.
       # 
-      #   drag :to => [ 300, 350 ]
-      #   drag :from => [ 200, 300 ], :to => [ 400, 800 ]
-      #   drag :from => [ 200, 300 ], :distance => [ 200, 500 ]
-      #   drag :from => [ 200, 300 ], :distance => [ 220, 340 ], :increments => 20
-      #   drag :from => [ 200, 300 ], :to => [ 300, 400 ] do
-      #     sleep 0.5
-      #   end
-      #   drag :distance => [ 20, 0 ] do
-      #     drag :distance => [ 0, 30 ]
-      #   end
+      #     drag :to => [ 300, 350 ]
+      #     drag :from => [ 200, 300 ], :to => [ 400, 800 ]
+      #     drag :from => [ 200, 300 ], :distance => [ 200, 500 ]
+      #     drag :from => [ 200, 300 ], :distance => [ 220, 340 ], :increments => 20
+      #     drag :from => [ 200, 300 ], :to => [ 300, 400 ] do
+      #       sleep 0.5
+      #     end
+      #     drag :distance => [ 20, 0 ] do
+      #       drag :distance => [ 0, 30 ]
+      #     end
+      # 
+      # NOTE: that if :increments is not evenly divisble by the total distance
+      # the mouse will move in either direction then the distance of each
+      # iteration will not be consistent. The iterations are individually
+      # rounded to try to provide a smooth movement. For instance, take:
+      # 
+      #     drag :from => [ 0, 0 ], :distance => [ 20, 20 ], :increments => 8
+      # 
+      # will still occur in 8 iterations, however each 3rd iteration will move
+      # 3px instead of 2px.
       def drag(options={}, &block)
         raise ArgumentError.new(":to or :distance is required to provide ending location") unless options.has_key?(:to) || options.has_key?(:distance)
         raise ArgumentError.new(":increments must be > 0") if options.has_key?(:increments) && options[:increments] <= 0
@@ -76,13 +104,14 @@ module Casper
         from       ||= options[:from] || location
         increments   = options[:increments] || 10
         distance     = options[:distance] || [ options[:to][0] - from[0], options[:to][1] - from[1] ]
-        
-        shift_x = distance[0] / increments
-        shift_y = distance[1] / increments
 
         move from[0], from[1]
         down
-        increments.times{ |i| move(shift_x, shift_y, true) }
+        increments.times do |i|
+          x = (from[0] + (distance[0].to_f / increments) * (i + 1)).round
+          y = (from[1] + (distance[1].to_f / increments) * (i + 1)).round
+          move(x, y)
+        end
         yield if block_given?
         up
       end
@@ -93,8 +122,9 @@ module Casper
       def xdo(&block)
         xdo = Libxdo.xdo_new(nil)
         yield(xdo)
+        sleep delay
         Libxdo.xdo_free(xdo)
-      end      
+      end
       
       # Performs an absolute mouse move
       def absolute(x, y)

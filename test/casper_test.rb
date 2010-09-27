@@ -17,6 +17,7 @@ $('<div class="target" id="#{id}"></div>').
   end
   
   setup do
+    Casper::Mouse.delay = 0.010
     Casper::Mouse.move 0, 0
     # Gets rid of the menu if it was left open (i.e. from leaving the mouse
     # button down and moving over it).
@@ -110,6 +111,33 @@ $('<div class="target" id="#{id}"></div>').
       assert_raise ArgumentError do
         Casper::Mouse.drag :from => [ 1, 1 ]
       end
-    end    
+    end
+    
+    should "end in the correct location when the distance is not divisible by the number of increments" do
+      Casper::Mouse.drag :from => [ 0, 0 ], :to => [ 20, 20 ], :increments => 8
+      assert_equal [ 20, 20 ], Casper::Mouse.location
+    end
+
+    should "end in the correct location when one axis is not divisible by the number of increments" do
+      Casper::Mouse.drag :from => [ 0, 0 ], :to => [ 16, 20 ], :increments => 8
+      assert_equal [ 16, 20 ], Casper::Mouse.location
+    end
+  end
+  
+  describe "with delay" do
+    should "move with no delay by default" do
+      start = Time.now
+      Casper::Mouse.move 10, 10
+      Casper::Mouse.move 20, 20
+      assert (Time.now.to_i - start.to_i) < 0.5
+    end
+    
+    should "delay after moving" do
+      start = Time.now
+      Casper::Mouse.delay = 0.5
+      Casper::Mouse.move 10, 10
+      Casper::Mouse.move 20, 20
+      assert (Time.now.to_f - start.to_f) > 0.5
+    end
   end
 end
