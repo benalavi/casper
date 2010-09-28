@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "casper"
-  s.version     = "0.0.5"
+  s.version     = "0.0.6"
   s.summary     = %{A DSL for automated mouse and keyboard input in X11.}
   s.description = %Q{}
   s.authors     = ["Ben Alavi", "Chris Schneider"]

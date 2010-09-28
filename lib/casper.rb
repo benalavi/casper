@@ -113,6 +113,7 @@ module Casper
           move(x, y)
         end
         yield if block_given?
+      ensure
         up
       end
       
@@ -123,6 +124,7 @@ module Casper
         xdo = Libxdo.xdo_new(nil)
         yield(xdo)
         sleep delay
+      ensure
         Libxdo.xdo_free(xdo)
       end
       

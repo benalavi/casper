@@ -140,4 +140,21 @@ $('<div class="target" id="#{id}"></div>').
       assert (Time.now.to_f - start.to_f) > 0.5
     end
   end
+  
+  describe "when exceptions occur in blocks" do
+    should "release the mouse button when dragging" do
+      target! "a", 300, 220
+      assert !has_class?("#a", "mousedown")
+      
+      Casper::Mouse.move 320, 350
+      begin
+        Casper::Mouse.drag(:to => [ 330, 360 ]) do
+          assert has_class?("#a", "mousedown")
+          raise
+        end
+      rescue RuntimeError;end;
+      
+      assert !has_class?("#a", "mousedown")
+    end
+  end
 end
