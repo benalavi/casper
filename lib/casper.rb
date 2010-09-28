@@ -95,8 +95,8 @@ module Casper
       # 
       #     drag :from => [ 0, 0 ], :distance => [ 20, 20 ], :increments => 8
       # 
-      # will still occur in 8 iterations, however each 3rd iteration will move
-      # 3px instead of 2px.
+      # will still occur in 8 iterations, however each iteration will alternate
+      # between 2px and 3px (interpolated movement).
       def drag(options={}, &block)
         raise ArgumentError.new(":to or :distance is required to provide ending location") unless options.has_key?(:to) || options.has_key?(:distance)
         raise ArgumentError.new(":increments must be > 0") if options.has_key?(:increments) && options[:increments] <= 0
